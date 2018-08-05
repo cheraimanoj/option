@@ -14,3 +14,4 @@ Pending things
 3. Menu links not getting highlignted during selection
 4. Breadcrums not added
 5. No results graph
+6. highcharts links are CDN links(need to copy the files to server)
