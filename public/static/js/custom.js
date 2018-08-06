@@ -18,10 +18,8 @@ $(document).ready(function() {
 				}
 			}
 		});
-		console.log(d);
-		if(1){//need to validate the dropdown list
+		
 			d['func'] = 'addemp';
-			console.log(d);
 			$.ajax({   
 				url: "../common/dbqueries.php",
 				type: "POST",
@@ -42,8 +40,6 @@ $(document).ready(function() {
 				}
 			
 			});
-			
-		}
          return false;
 		
 	})

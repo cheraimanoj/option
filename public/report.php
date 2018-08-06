@@ -36,6 +36,7 @@ $age = json_encode(getAgecount());
 </div>
 
 <script>
+//For geting the values from PHP
 function getvalue(groupby){
 	if(groupby == 'gender'){
 		return '<?php print_r($gender); ?>';
@@ -49,9 +50,6 @@ function getvalue(groupby){
 }
 </script>
 <?php
-
 require_once("footer.php");
-
-
 ?>
 
