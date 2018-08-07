@@ -35,7 +35,7 @@ Download Employee details
 
 
 
-Pending things
+Future Scope
 1. Mobile number 10 digint validation
 2. Edit/Delete option (already exisiting employee)
 3. Menu links not getting highlignted during selection
