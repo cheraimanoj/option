@@ -15,6 +15,6 @@
   <nav class="my-2 my-md-0 mr-md-3">
 	<a class="p-2 text-dark" href="index.php">Add Employee Details</a>
 	<a class="p-2 text-dark" href="report.php">Report</a>
-	<a class="p-2 text-dark" href="listemp.php">Download Employee Details</a>
+	<a class="p-2 text-dark" href="listemp.php">Download/Edit Employee Details</a>
   </nav>
 </div>

@@ -48,8 +48,12 @@ function getvalue(groupby){
 		return '<?php print_r($age); ?>';
 	}
 }
+
 </script>
 <?php
 require_once("footer.php");
 ?>
+<script>
+piehcartvalues();
+</script>
 

@@ -6,10 +6,22 @@ if(isset($_POST['func']))
     {
         addEmp();
     }
-	//if($_POST['func'] == 'downloadaspdf')
-	//{
-	//	downloadAsPdf();
-	//}
+	if($_POST['func'] == 'getEmpbyId')
+	{
+		getEmpbyId();
+	}
+	if($_POST['func'] == 'updateEmp')
+	{
+		updateEmp();
+	}
+	if($_POST['func'] == 'getAllEmps')
+	{
+		getAllEmps();
+	}if($_POST['func'] == 'deleteEmp')
+	{
+		deleteEmp();
+	}
+	
 }
 
 function addEmp(){
@@ -24,6 +36,7 @@ function addEmp(){
 		unset($params['landline']);
 	}
 	$params['date_added']=date('Y-m-d H:i:s');
+	$params['date_updated']=date('Y-m-d H:i:s');
 	$ex = checkEmpid($params['emp_id']);
 	if($ex == 0){
 		$query  = "INSERT INTO employee";
@@ -45,7 +58,61 @@ function addEmp(){
 	
 	//print_r($params);
 }
+function updateEmp(){
+	global $conn;
+	$params = $_POST;
+	$emp_id = $params['emp_id'];
+	unset($params['func']);
+	unset($params['emp_id']);
+	if($params['mobile'] == ''){
+		unset($params['mobile']);
+	}
+	if($params['landline'] == ''){
+		unset($params['landline']);
+	}
+	$params['date_updated']=date('Y-m-d H:i:s');
+	foreach($params as $key => $vals) {
+	   $set_vals[] = "$key = '$vals'";
+	}
+	$query  = "UPDATE employee SET ";
+	$query .= implode(", ", $set_vals);
+	$query .= " WHERE emp_id = ".$emp_id;
+	
+	if($conn===NULL){ 
+		$conn = dbconnection();
+	}
+	$sth = $conn->prepare($query);
 
+	if ($sth->execute() === TRUE){
+		echo "Success";
+	} else {
+		echo "Error: " . $query;
+	}
+}
+function deleteEmp(){
+	global $conn;
+	$params = $_POST;
+	$emp_id = $params['emp_id'];
+	unset($params['func']);
+	unset($params['emp_id']);
+	
+	$params['date_updated']=date('Y-m-d H:i:s');
+	
+	$query  = "UPDATE employee SET ";
+	$query .= " date_updated='".$params['date_updated']."',state=0";
+	$query .= " WHERE emp_id = ".$emp_id;
+	
+	if($conn===NULL){ 
+		$conn = dbconnection();
+	}
+	$sth = $conn->prepare($query);
+
+	if ($sth->execute() === TRUE){
+		echo "Success";
+	} else {
+		echo "Error: " . $query;
+	}
+}
 function checkEmpid($emp_id){
 	global $conn;
 	if ($conn===NULL){ 
@@ -81,7 +148,7 @@ function getNonFiledList(){
 function getGendercount(){
 	global $conn;
 	
-	$query = "SELECT gender as field,count(id) as count FROM `employee` where concat(per_address,temp_address,mobile,landline) is null group by gender";
+	$query = "SELECT gender as field,count(id) as count FROM `employee` where concat(per_address,temp_address,mobile,landline) is null and state=1 group by gender";
 
     $sth = $conn->prepare($query);
     $sth->execute();
@@ -96,7 +163,7 @@ function getGendercount(){
 function getDesignationcount(){
 	global $conn;
 	
-	$query = "SELECT designation as field,count(id) as count FROM `employee` where concat(per_address,temp_address,mobile,landline) is null group by designation";
+	$query = "SELECT designation as field,count(id) as count FROM `employee` where concat(per_address,temp_address,mobile,landline) is null and state=1 group by designation";
 
     $sth = $conn->prepare($query);
     $sth->execute();
@@ -109,7 +176,7 @@ function getDesignationcount(){
 function getAgecount(){
 	global $conn;
 	
-	$query = "SELECT concat(10*floor(age/10), '-', 10*floor(age/10) + 10) as field,count(*) as count FROM `employee` where concat(per_address,temp_address,mobile,landline) is null group by field ";
+	$query = "SELECT concat(10*floor(age/10), '-', 10*floor(age/10) + 10) as field,count(*) as count FROM `employee` where concat(per_address,temp_address,mobile,landline) is null and state=1 group by field ";
 
     $sth = $conn->prepare($query);
     $sth->execute();
@@ -122,6 +189,11 @@ function getAgecount(){
 
 function getAllEmps(){
 	global $conn;
+	$flag = '';
+	if ($conn===NULL){ 
+		$conn = dbconnection();
+		$flag=1;
+	}
 	$params = $_GET;
 	$str_print = '';
 	if(!empty($params)){
@@ -133,30 +205,48 @@ function getAllEmps(){
 		else{
 			$where_sql = $params['groupby']."='".$params['field']."'";
 		}
-		$query = "SELECT id,emp_id,name,age,gender,designation,date_added from employee where ".$where_sql." and concat(per_address,temp_address,mobile,landline) is null order by date_added desc";
+		$query = "SELECT id,emp_id,name,age,gender,designation,date_added from employee where ".$where_sql." and concat(per_address,temp_address,mobile,landline) is null and state=1 order by date_added desc";
 	}else{
-		$query = "SELECT id,emp_id,name,age,gender,designation,date_added from employee order by date_added desc";
+		$query = "SELECT id,emp_id,name,age,gender,designation,date_added from employee where state=1 order by date_added desc";
 	}
 	$sth = $conn->prepare($query);
 	$sth->execute();
 
 	$resultset = $sth->fetchAll(PDO::FETCH_ASSOC);
 	$resultset = array_merge($resultset,array('p_str'=>$str_print));
-
-	return $resultset;
+	if($flag)
+		print(json_encode($resultset[0]));
+	else
+		return $resultset;
 	
 }
 
-function getEmpbyId($emp_id){
+function getEmpbyId(){
 	global $conn;
-	$query = "SELECT id,emp_id,name,age,gender,designation,date_added from employee order by date_added desc";
+	if ($conn===NULL){ 
+		$conn = dbconnection();
+	}
+	$params = $_POST;
+	if($params['emp_id'])
+	{
+		$query = "SELECT emp_id,name,age,gender,designation,per_address,temp_address,mobile,landline from employee where emp_id=".$params['emp_id']." and state=1 order by date_added desc";
+		$sth = $conn->prepare($query);
+		$sth->execute();
 
-    $sth = $conn->prepare($query);
-    $sth->execute();
-
-    $resultset = $sth->fetchAll(PDO::FETCH_ASSOC);
+		$resultset = $sth->fetchAll(PDO::FETCH_ASSOC);
+		if($resultset[0]){
+			echo json_encode($resultset[0]);
+		}
+		else{
+			echo "error";
+		}
+	}
+	else{
+			echo "error";
+		}
 	
-	return $resultset;
+
+    
 }
 
 function downloadAsPdf(){
@@ -168,7 +258,7 @@ function downloadAsPdf(){
 		$conn = dbconnection();
 	}
 	$query = "SELECT emp_id as Employee_ID,name as Employee_Name,age as Age,gender as Gender,designation as Designation,per_address as Present_address,temp_address as Temporary_address,mobile as Mobile,landline as Land_line,date_added as Date_added,date_updated as Last_updated ";
-	$query .=" from employee where emp_id=".$params['empid']." order by date_added desc";
+	$query .=" from employee where emp_id=".$params['empid']." and state=1 order by date_added desc";
 	
     $sth = $conn->prepare($query);
     $sth->execute();
