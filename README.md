@@ -24,11 +24,13 @@ Report,
   Drilldown to show the list of Employees
   
   
-Download Employee details
+Download/Edit Employee details
 
   Lists all the employees and can download the full details in PDF format
   
-  'No edit/delete option added as of now'
+  Can edit or delete employee 
+  
+  
   
 
 
@@ -36,9 +38,7 @@ Download Employee details
 
 
 Future Scope
-1. Mobile number 10 digint validation
-2. Edit/Delete option (already exisiting employee)
-3. Menu links not getting highlignted during selection
-4. Breadcrums not added
-5. No results graph
-6. highcharts links are CDN links(need to copy the files to server)
+1. Menu links not getting highlignted during selection
+2. Breadcrums not added
+3. No results graph
+4. highcharts links are CDN links(need to copy the files to server)
